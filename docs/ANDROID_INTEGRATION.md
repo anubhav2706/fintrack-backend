@@ -22,7 +22,7 @@ This guide provides comprehensive instructions for integrating the FinTrack Pro 
 
 ### Development Environment
 ```
-https://api-dev.fintrackpro.com
+https://fintrack-backend-pi.vercel.app
 ```
 
 ### Production Environment
@@ -33,6 +33,16 @@ https://api.fintrackpro.com
 ### Staging Environment
 ```
 https://api-staging.fintrackpro.com
+```
+
+### Local Development
+```
+http://localhost:5000
+```
+
+### Test Environment
+```
+http://localhost:3001
 ```
 
 ## Authentication
@@ -878,7 +888,7 @@ For additional support or questions:
 
 - **Email**: support@fintrackpro.com
 - **Documentation**: https://docs.fintrackpro.com
-- **API Reference**: https://api.fintrackpro.com/api-docs
+- **API Reference**: https://fintrack-backend-pi.vercel.app/api-docs
 - **Status Page**: https://status.fintrackpro.com
 
 ## Version History
