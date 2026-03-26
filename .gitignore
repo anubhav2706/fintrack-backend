@@ -233,3 +233,4 @@ docs/build/
 
 # GitHub
 .github/workflows/deploy.yml.env
+.vercel
