@@ -3,6 +3,7 @@ import { generalRateLimit, corsMiddleware, requestLogger, securityHeaders } from
 import authRoutes from './auth.routes';
 import transactionRoutes from './transaction.routes';
 import additionalRoutes from './additional.routes';
+import syncRoutes from './sync.routes';
 
 const router = Router();
 
@@ -60,6 +61,7 @@ router.get('/', (req, res) => {
  */
 router.use('/auth', authRoutes);
 router.use('/transactions', transactionRoutes);
+router.use('/sync', syncRoutes);
 router.use('/', additionalRoutes);
 
 /**

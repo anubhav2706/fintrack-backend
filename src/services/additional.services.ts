@@ -33,13 +33,13 @@ export class AccountService {
       .populate('userId', 'name email');
 
     return ApiResponse.created('Account created successfully', { account: populatedAccount });
-  });
+  }
 
   static getAccounts = async (userId: string, includeArchived = false) => {
     const accounts = await Account.findActiveByUser(userId);
 
     return ApiResponse.success('Accounts retrieved successfully', { accounts });
-  });
+  }
 
   static updateAccount = async (userId: string, accountId: string, updateData: any) => {
     const account = await Account.findOne({ _id: accountId, userId });
@@ -56,7 +56,7 @@ export class AccountService {
     await account.save();
 
     return ApiResponse.success('Account updated successfully', { account });
-  });
+  }
 
   static deleteAccount = async (userId: string, accountId: string) => {
     const account = await Account.findOne({ _id: accountId, userId });
@@ -68,13 +68,13 @@ export class AccountService {
     await account.save();
 
     return ApiResponse.success('Account archived successfully');
-  });
+  }
 
   static getBalanceSummary = async (userId: string) => {
     const summary = await Account.getBalanceSummary(userId);
 
     return ApiResponse.success('Balance summary retrieved successfully', { summary: summary[0] || { total: 0, byType: {} } });
-  });
+  }
 }
 
 /**
@@ -104,13 +104,13 @@ export class CategoryService {
       .populate('parentId', 'name icon color');
 
     return ApiResponse.created('Category created successfully', { category: populatedCategory });
-  });
+  }
 
   static getCategories = async (userId: string, type?: string) => {
     const categories = await Category.findActiveByUser(userId, type);
 
     return ApiResponse.success('Categories retrieved successfully', { categories });
-  });
+  }
 
   static updateCategory = async (userId: string, categoryId: string, updateData: any) => {
     const category = await Category.findOne({ _id: categoryId, userId });
@@ -135,7 +135,7 @@ export class CategoryService {
     await category.save();
 
     return ApiResponse.success('Category updated successfully', { category });
-  });
+  }
 
   static deleteCategory = async (userId: string, categoryId: string) => {
     const category = await Category.findOne({ _id: categoryId, userId });
@@ -153,19 +153,19 @@ export class CategoryService {
     await category.save();
 
     return ApiResponse.success('Category archived successfully');
-  });
+  }
 
   static reorderCategories = async (userId: string, orderedIds: string[]) => {
     await Category.reorder(userId, orderedIds);
 
     return ApiResponse.success('Categories reordered successfully');
-  });
+  }
 
   static seedDefaults = async (userId: string) => {
     await Category.seedDefaults(userId);
 
     return ApiResponse.success('Default categories seeded successfully');
-  });
+  }
 }
 
 /**
@@ -200,13 +200,13 @@ export class GoalService {
       .populate('linkedAccountId', 'name type currency');
 
     return ApiResponse.created('Goal created successfully', { goal: populatedGoal });
-  });
+  }
 
   static getGoals = async (userId: string) => {
     const goals = await Goal.findActiveByUser(userId);
 
     return ApiResponse.success('Goals retrieved successfully', { goals });
-  });
+  }
 
   static updateGoal = async (userId: string, goalId: string, updateData: any) => {
     const goal = await Goal.findOne({ _id: goalId, userId });
@@ -226,7 +226,7 @@ export class GoalService {
     await goal.save();
 
     return ApiResponse.success('Goal updated successfully', { goal });
-  });
+  }
 
   static deleteGoal = async (userId: string, goalId: string) => {
     const goal = await Goal.findOne({ _id: goalId, userId });
@@ -238,7 +238,7 @@ export class GoalService {
     await goal.save();
 
     return ApiResponse.success('Goal archived successfully');
-  });
+  }
 
   static addContribution = async (userId: string, goalId: string, contributionData: any) => {
     const { amount, date, note } = contributionData;
@@ -251,7 +251,7 @@ export class GoalService {
     await goal.addContribution(amount, new Date(date), note);
 
     return ApiResponse.success('Contribution added successfully');
-  });
+  }
 
   static getGoalProjection = async (userId: string, goalId: string, extraMonthly = 0) => {
     const goal = await Goal.findOne({ _id: goalId, userId });
@@ -268,19 +268,19 @@ export class GoalService {
     };
 
     return ApiResponse.success('Goal projection retrieved successfully', { projection });
-  });
+  }
 
   static getUpcomingDeadlines = async (userId: string, days = 30) => {
     const upcomingGoals = await Goal.getUpcomingDeadlines(userId, days);
 
     return ApiResponse.success('Upcoming deadlines retrieved successfully', { goals: upcomingGoals });
-  });
+  }
 
   static getSummary = async (userId: string) => {
     const summary = await Goal.getSummary(userId);
 
     return ApiResponse.success('Goal summary retrieved successfully', { summary: summary[0] || {} });
-  });
+  }
 }
 
 /**
@@ -316,19 +316,19 @@ export class BudgetService {
       .populate('categoryId', 'name icon color type');
 
     return ApiResponse.created('Budget created successfully', { budget: populatedBudget });
-  });
+  }
 
   static getBudgets = async (userId: string, month: number, year: number) => {
     const budgets = await Budget.findByMonth(userId, month, year);
 
     return ApiResponse.success('Budgets retrieved successfully', { budgets });
-  });
+  }
 
   static getBudgetStatus = async (userId: string, month: number, year: number) => {
     const budgetStatus = await Budget.getBudgetStatus(userId, month, year);
 
     return ApiResponse.success('Budget status retrieved successfully', { budgetStatus });
-  });
+  }
 
   static updateBudget = async (userId: string, budgetId: string, updateData: any) => {
     const budget = await Budget.findOne({ _id: budgetId, userId });
@@ -340,7 +340,7 @@ export class BudgetService {
     await budget.save();
 
     return ApiResponse.success('Budget updated successfully', { budget });
-  });
+  }
 
   static deleteBudget = async (userId: string, budgetId: string) => {
     const budget = await Budget.findOne({ _id: budgetId, userId });
@@ -351,19 +351,19 @@ export class BudgetService {
     await Budget.findByIdAndDelete(budgetId);
 
     return ApiResponse.success('Budget deleted successfully');
-  });
+  }
 
   static copyFromPreviousMonth = async (userId: string, month: number, year: number) => {
     await Budget.copyFromPreviousMonth(userId, month, year);
 
     return ApiResponse.success('Budgets copied from previous month');
-  });
+  }
 
   static getSummary = async (userId: string, month: number, year: number) => {
     const summary = await Budget.getSummary(userId, month, year);
 
     return ApiResponse.success('Budget summary retrieved successfully', { summary: summary[0] || {} });
-  });
+  }
 }
 
 /**
@@ -395,25 +395,25 @@ export class AnalyticsService {
       budgets: budgetSummary[0] || { totalBudget: 0, totalSpent: 0, averageUtilization: 0 },
       accounts: accountSummary[0] || { total: 0, byType: {} },
     });
-  });
+  }
 
   static getSpendingByCategory = async (userId: string, from: Date, to: Date) => {
     const spendingByCategory = await Category.getSpendingSummary(userId, from, to);
 
     return ApiResponse.success('Spending by category retrieved successfully', { spendingByCategory });
-  });
+  }
 
   static getTopSpendingCategories = async (userId: string, from: Date, to: Date, limit = 10) => {
     const topCategories = await Category.getTopSpending(userId, from, to, limit);
 
     return ApiResponse.success('Top spending categories retrieved successfully', { topCategories: topCategories[0]?.categories || [] });
-  });
+  }
 
   static getMonthlyComparison = async (userId: string, months = 12) => {
     const monthlyTrends = await Transaction.getMonthlyTrends(userId, months);
 
     return ApiResponse.success('Monthly comparison retrieved successfully', { monthlyTrends });
-  });
+  }
 
   static getFinancialScore = async (userId: string) => {
     // Calculate financial score based on various factors
@@ -446,7 +446,7 @@ export class AnalyticsService {
         budgetAdherence: Math.round(budgetAdherence),
       },
     });
-  });
+  }
 }
 
 /**
@@ -496,7 +496,7 @@ export class SyncService {
         syncVersion: Date.now(),
       },
     };
-  });
+  }
 
   static pushSync = async (userId: string, syncData: any) => {
     const { deviceId, changes } = syncData;
@@ -513,7 +513,7 @@ export class SyncService {
         syncVersion: Date.now(),
       },
     };
-  });
+  }
 
   static getSyncStatus = async (userId: string) => {
     // Get last modified times for all collections
@@ -535,7 +535,7 @@ export class SyncService {
       message: 'Sync status retrieved successfully',
       data: { status },
     };
-  });
+  }
 }
 
 /**
@@ -554,7 +554,7 @@ export class NotificationService {
     // This would use the Firebase service to send the notification
 
     return ApiResponse.success('Test notification sent successfully');
-  });
+  }
 
   static updateNotificationSettings = async (userId: string, settings: any) => {
     const user = await User.findById(userId);
@@ -566,28 +566,28 @@ export class NotificationService {
     await user.save();
 
     return ApiResponse.success('Notification settings updated successfully');
-  });
+  }
 
   static sendBudgetAlerts = async () => {
     // This would be called by a scheduled job
     // Find all users who have budget alerts enabled and send notifications
 
     return ApiResponse.success('Budget alerts processed successfully');
-  });
+  }
 
   static sendGoalReminders = async () => {
     // This would be called by a scheduled job
     // Find all users with upcoming goal deadlines and send notifications
 
     return ApiResponse.success('Goal reminders processed successfully');
-  });
+  }
 
   static sendBillReminders = async () => {
     // This would be called by a scheduled job
     // Find all users with upcoming bill due dates and send notifications
 
     return ApiResponse.success('Bill reminders processed successfully');
-  });
+  }
 }
 
 /**
@@ -604,7 +604,7 @@ export class ImportExportService {
       imported: 0, // Would return actual count
       failed: 0, // Would return actual count
     });
-  });
+  }
 
   static exportTransactions = async (userId: string, exportOptions: any) => {
     const { format = 'json', from, to, type, categoryId, accountId } = exportOptions;
@@ -616,7 +616,7 @@ export class ImportExportService {
       data: [], // Would return actual data
       filename: `transactions_export_${Date.now()}.${format}`,
     });
-  });
+  }
 
   static exportData = async (userId: string, exportOptions: any) => {
     const { collections = ['transactions', 'accounts', 'categories'], format = 'json' } = exportOptions;
@@ -628,6 +628,6 @@ export class ImportExportService {
       data: {}, // Would return actual data
       filename: `fintrack_export_${Date.now()}.${format}`,
     });
-  });
+  }
 }
 
