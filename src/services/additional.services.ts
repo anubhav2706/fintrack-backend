@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import { Account, Category, Goal, Budget, Debt, Split, Investment, Bill, Installment, Template, Profile, Envelope, Tag, Transaction, User } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { ApiResponse } from '../utils/ApiResponse';
-import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../config/env';
 
 /**
@@ -497,7 +496,7 @@ export class SyncService {
         syncVersion: Date.now(),
       },
     };
-  };
+  });
 
   static pushSync = catchAsync(async (userId: string, syncData: any) => {
     const { deviceId, changes } = syncData;
@@ -514,7 +513,7 @@ export class SyncService {
         syncVersion: Date.now(),
       },
     };
-  };
+  });
 
   static getSyncStatus = catchAsync(async (userId: string) => {
     // Get last modified times for all collections
@@ -536,7 +535,7 @@ export class SyncService {
       message: 'Sync status retrieved successfully',
       data: { status },
     };
-  };
+  });
 }
 
 /**
