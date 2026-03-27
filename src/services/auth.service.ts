@@ -233,4 +233,214 @@ export class AuthService {
       },
     };
   };
+
+  /**
+   * Setup passcode for user
+   */
+  static setupPasscode = async (userId: string, passcode: string) => {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw ApiError.notFound('User not found');
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      $set: { passcode }
+    });
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Passcode setup successful',
+    };
+  };
+
+  /**
+   * Verify passcode
+   */
+  static verifyPasscode = async (userId: string, passcode: string) => {
+    const user = await User.findById(userId).select('+passcode');
+    if (!user || !user.passcode) {
+      throw ApiError.unauthorized('Passcode not set');
+    }
+
+    const isPasscodeValid = await bcrypt.compare(passcode, user.passcode);
+    if (!isPasscodeValid) {
+      throw ApiError.unauthorized('Invalid passcode');
+    }
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Passcode verified successfully',
+    };
+  };
+
+  /**
+   * Change passcode
+   */
+  static changePasscode = async (userId: string, data: { currentPasscode: string; newPasscode: string }) => {
+    const { currentPasscode, newPasscode } = data;
+    
+    const user = await User.findById(userId).select('+passcode');
+    if (!user) {
+      throw ApiError.notFound('User not found');
+    }
+
+    if (user.passcode) {
+      const isCurrentPasscodeValid = await bcrypt.compare(currentPasscode, user.passcode);
+      if (!isCurrentPasscodeValid) {
+        throw ApiError.unauthorized('Invalid current passcode');
+      }
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      $set: { passcode: newPasscode }
+    });
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Passcode changed successfully',
+    };
+  };
+
+  /**
+   * Change password
+   */
+  static changePassword = async (userId: string, data: { currentPassword: string; newPassword: string }) => {
+    const { currentPassword, newPassword } = data;
+    
+    const user = await User.findById(userId).select('+passwordHash');
+    if (!user) {
+      throw ApiError.notFound('User not found');
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash || '');
+    if (!isCurrentPasswordValid) {
+      throw ApiError.unauthorized('Invalid current password');
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 12);
+    
+    await User.findByIdAndUpdate(userId, {
+      $set: { passwordHash: newPasswordHash }
+    });
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Password changed successfully',
+    };
+  };
+
+  /**
+   * Update FCM token
+   */
+  static updateFcmToken = async (userId: string, fcmToken: string) => {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: { fcmToken } },
+      { new: true }
+    );
+
+    if (!user) {
+      throw ApiError.notFound('User not found');
+    }
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'FCM token updated successfully',
+    };
+  };
+
+  /**
+   * Verify email
+   */
+  static verifyEmail = async (token: string) => {
+    try {
+      const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as { userId: string };
+      
+      const user = await User.findByIdAndUpdate(
+        decoded.userId,
+        { $set: { isEmailVerified: true } },
+        { new: true }
+      );
+
+      if (!user) {
+        throw ApiError.notFound('User not found');
+      }
+
+      return {
+        success: true,
+        statusCode: 200,
+        message: 'Email verified successfully',
+      };
+    } catch (error) {
+      throw ApiError.unauthorized('Invalid or expired verification token');
+    }
+  };
+
+  /**
+   * Forgot password
+   */
+  static forgotPassword = async (email: string) => {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      // Don't reveal if user exists or not
+      return {
+        success: true,
+        statusCode: 200,
+        message: 'If an account with this email exists, a reset link has been sent',
+      };
+    }
+
+    // Generate reset token (in a real app, you'd send this via email)
+    const resetToken = jwt.sign(
+      { userId: user.id },
+      env.JWT_ACCESS_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    logger.info('Password reset requested', { userId: user.id, email: user.email });
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'If an account with this email exists, a reset link has been sent',
+      data: { resetToken }, // Only for development
+    };
+  };
+
+  /**
+   * Reset password
+   */
+  static resetPassword = async (data: { token: string; newPassword: string }) => {
+    const { token, newPassword } = data;
+
+    try {
+      const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as { userId: string };
+      
+      const user = await User.findById(decoded.userId);
+      if (!user) {
+        throw ApiError.notFound('User not found');
+      }
+
+      const newPasswordHash = await bcrypt.hash(newPassword, 12);
+      
+      await User.findByIdAndUpdate(decoded.userId, {
+        $set: { passwordHash: newPasswordHash }
+      });
+
+      logger.info('Password reset successful', { userId: user.id });
+
+      return {
+        success: true,
+        statusCode: 200,
+        message: 'Password reset successful',
+      };
+    } catch (error) {
+      throw ApiError.unauthorized('Invalid or expired reset token');
+    }
+  };
 }

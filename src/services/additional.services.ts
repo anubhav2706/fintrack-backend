@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
-import { Account, Category, Goal, Budget, Debt, Split, Investment, Bill, Installment, Template, Profile, Envelope, Tag } from '../models';
+import { Account, Category, Goal, Budget, Debt, Split, Investment, Bill, Installment, Template, Profile, Envelope, Tag, Transaction, User } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { ApiResponse } from '../utils/ApiResponse';
-import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../config/env';
 
 /**
@@ -454,7 +453,7 @@ export class AnalyticsService {
  * Sync Service
  */
 export class SyncService {
-  static pullSync = catchAsync(async (userId: string, syncData: any) => {
+  static pullSync = async (userId: string, syncData: any) => {
     const { deviceId, lastSyncAt, collections = [] } = syncData;
 
     // Get all collections for sync
@@ -486,27 +485,37 @@ export class SyncService {
 
     // Add other collections as needed...
 
-    return ApiResponse.success('Sync data retrieved successfully', {
-      data: syncDataResult,
-      deletedIds: {}, // Would contain deleted IDs
-      serverTime: new Date().toISOString(),
-      syncVersion: Date.now(),
-    });
-  });
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Sync data retrieved successfully',
+      data: {
+        data: syncDataResult,
+        deletedIds: {}, // Would contain deleted IDs
+        serverTime: new Date().toISOString(),
+        syncVersion: Date.now(),
+      },
+    };
+  };
 
-  static pushSync = catchAsync(async (userId: string, syncData: any) => {
+  static pushSync = async (userId: string, syncData: any) => {
     const { deviceId, changes } = syncData;
 
     // Process changes from client
     // This would involve creating/updating/deleting records based on the changes
     // For now, we'll just return success
 
-    return ApiResponse.success('Sync completed successfully', {
-      syncVersion: Date.now(),
-    });
-  });
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Sync completed successfully',
+      data: {
+        syncVersion: Date.now(),
+      },
+    };
+  };
 
-  static getSyncStatus = catchAsync(async (userId: string) => {
+  static getSyncStatus = async (userId: string) => {
     // Get last modified times for all collections
     const collections = ['transactions', 'accounts', 'categories', 'goals', 'budgets'];
     const status: any = {};
@@ -520,8 +529,13 @@ export class SyncService {
       };
     }
 
-    return ApiResponse.success('Sync status retrieved successfully', { status });
-  });
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Sync status retrieved successfully',
+      data: { status },
+    };
+  };
 }
 
 /**
