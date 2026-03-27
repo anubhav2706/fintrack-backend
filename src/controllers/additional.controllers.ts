@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { AccountService, CategoryService, GoalService, BudgetService, AnalyticsService, SyncService, NotificationService, ImportExportService } from '../services';
+import { AccountService, CategoryService, GoalService, BudgetService, AnalyticsService, NotificationService, ImportExportService } from '../services';
+import { SyncService } from '../services/sync.service';
 import { catchAsync } from '../utils/catchAsync';
 
 /**

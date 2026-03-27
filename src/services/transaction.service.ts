@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import { Transaction, Account, Category, User } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { ApiResponse } from '../utils/ApiResponse';
-import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../config/env';
 import { paginate } from '../utils/paginate';
 

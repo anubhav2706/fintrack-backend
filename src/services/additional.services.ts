@@ -453,7 +453,7 @@ export class AnalyticsService {
  * Sync Service
  */
 export class SyncService {
-  static pullSync = catchAsync(async (userId: string, syncData: any) => {
+  static pullSync = async (userId: string, syncData: any) => {
     const { deviceId, lastSyncAt, collections = [] } = syncData;
 
     // Get all collections for sync
@@ -498,7 +498,7 @@ export class SyncService {
     };
   });
 
-  static pushSync = catchAsync(async (userId: string, syncData: any) => {
+  static pushSync = async (userId: string, syncData: any) => {
     const { deviceId, changes } = syncData;
 
     // Process changes from client
@@ -515,7 +515,7 @@ export class SyncService {
     };
   });
 
-  static getSyncStatus = catchAsync(async (userId: string) => {
+  static getSyncStatus = async (userId: string) => {
     // Get last modified times for all collections
     const collections = ['transactions', 'accounts', 'categories', 'goals', 'budgets'];
     const status: any = {};
