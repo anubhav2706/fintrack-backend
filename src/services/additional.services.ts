@@ -2,13 +2,14 @@ import mongoose from 'mongoose';
 import { Account, Category, Goal, Budget, Debt, Split, Investment, Bill, Installment, Template, Profile, Envelope, Tag, Transaction, User } from '../models';
 import { ApiError } from '../utils/ApiError';
 import { ApiResponse } from '../utils/ApiResponse';
+import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../config/env';
 
 /**
  * Account Service
  */
 export class AccountService {
-  static createAccount = catchAsync(async (userId: string, accountData: any) => {
+  static createAccount = async (userId: string, accountData: any) => {
     const { name, type, balance = 0, currency = 'INR', color, icon, isDefault = false, includeInTotal = true, note } = accountData;
 
     // If setting as default, unset other defaults
@@ -35,13 +36,13 @@ export class AccountService {
     return ApiResponse.created('Account created successfully', { account: populatedAccount });
   });
 
-  static getAccounts = catchAsync(async (userId: string, includeArchived = false) => {
+  static getAccounts = async (userId: string, includeArchived = false) => {
     const accounts = await Account.findActiveByUser(userId);
 
     return ApiResponse.success('Accounts retrieved successfully', { accounts });
   });
 
-  static updateAccount = catchAsync(async (userId: string, accountId: string, updateData: any) => {
+  static updateAccount = async (userId: string, accountId: string, updateData: any) => {
     const account = await Account.findOne({ _id: accountId, userId });
     if (!account) {
       throw ApiError.notFound('Account not found');
@@ -58,7 +59,7 @@ export class AccountService {
     return ApiResponse.success('Account updated successfully', { account });
   });
 
-  static deleteAccount = catchAsync(async (userId: string, accountId: string) => {
+  static deleteAccount = async (userId: string, accountId: string) => {
     const account = await Account.findOne({ _id: accountId, userId });
     if (!account) {
       throw ApiError.notFound('Account not found');
@@ -70,7 +71,7 @@ export class AccountService {
     return ApiResponse.success('Account archived successfully');
   });
 
-  static getBalanceSummary = catchAsync(async (userId: string) => {
+  static getBalanceSummary = async (userId: string) => {
     const summary = await Account.getBalanceSummary(userId);
 
     return ApiResponse.success('Balance summary retrieved successfully', { summary: summary[0] || { total: 0, byType: {} } });
@@ -81,7 +82,7 @@ export class AccountService {
  * Category Service
  */
 export class CategoryService {
-  static createCategory = catchAsync(async (userId: string, categoryData: any) => {
+  static createCategory = async (userId: string, categoryData: any) => {
     const { name, icon, color, type, parentId, monthlyBudget } = categoryData;
 
     // Check for duplicate names
@@ -106,13 +107,13 @@ export class CategoryService {
     return ApiResponse.created('Category created successfully', { category: populatedCategory });
   });
 
-  static getCategories = catchAsync(async (userId: string, type?: string) => {
+  static getCategories = async (userId: string, type?: string) => {
     const categories = await Category.findActiveByUser(userId, type);
 
     return ApiResponse.success('Categories retrieved successfully', { categories });
   });
 
-  static updateCategory = catchAsync(async (userId: string, categoryId: string, updateData: any) => {
+  static updateCategory = async (userId: string, categoryId: string, updateData: any) => {
     const category = await Category.findOne({ _id: categoryId, userId });
     if (!category) {
       throw ApiError.notFound('Category not found');
@@ -137,7 +138,7 @@ export class CategoryService {
     return ApiResponse.success('Category updated successfully', { category });
   });
 
-  static deleteCategory = catchAsync(async (userId: string, categoryId: string) => {
+  static deleteCategory = async (userId: string, categoryId: string) => {
     const category = await Category.findOne({ _id: categoryId, userId });
     if (!category) {
       throw ApiError.notFound('Category not found');
@@ -155,13 +156,13 @@ export class CategoryService {
     return ApiResponse.success('Category archived successfully');
   });
 
-  static reorderCategories = catchAsync(async (userId: string, orderedIds: string[]) => {
+  static reorderCategories = async (userId: string, orderedIds: string[]) => {
     await Category.reorder(userId, orderedIds);
 
     return ApiResponse.success('Categories reordered successfully');
   });
 
-  static seedDefaults = catchAsync(async (userId: string) => {
+  static seedDefaults = async (userId: string) => {
     await Category.seedDefaults(userId);
 
     return ApiResponse.success('Default categories seeded successfully');
@@ -172,7 +173,7 @@ export class CategoryService {
  * Goal Service
  */
 export class GoalService {
-  static createGoal = catchAsync(async (userId: string, goalData: any) => {
+  static createGoal = async (userId: string, goalData: any) => {
     const { name, targetAmount, currentSaved = 0, deadline, icon, color, priority = 0, linkedAccountId, category } = goalData;
 
     // Validate linked account if provided
@@ -202,13 +203,13 @@ export class GoalService {
     return ApiResponse.created('Goal created successfully', { goal: populatedGoal });
   });
 
-  static getGoals = catchAsync(async (userId: string) => {
+  static getGoals = async (userId: string) => {
     const goals = await Goal.findActiveByUser(userId);
 
     return ApiResponse.success('Goals retrieved successfully', { goals });
   });
 
-  static updateGoal = catchAsync(async (userId: string, goalId: string, updateData: any) => {
+  static updateGoal = async (userId: string, goalId: string, updateData: any) => {
     const goal = await Goal.findOne({ _id: goalId, userId });
     if (!goal) {
       throw ApiError.notFound('Goal not found');
@@ -228,7 +229,7 @@ export class GoalService {
     return ApiResponse.success('Goal updated successfully', { goal });
   });
 
-  static deleteGoal = catchAsync(async (userId: string, goalId: string) => {
+  static deleteGoal = async (userId: string, goalId: string) => {
     const goal = await Goal.findOne({ _id: goalId, userId });
     if (!goal) {
       throw ApiError.notFound('Goal not found');
@@ -240,7 +241,7 @@ export class GoalService {
     return ApiResponse.success('Goal archived successfully');
   });
 
-  static addContribution = catchAsync(async (userId: string, goalId: string, contributionData: any) => {
+  static addContribution = async (userId: string, goalId: string, contributionData: any) => {
     const { amount, date, note } = contributionData;
 
     const goal = await Goal.findOne({ _id: goalId, userId });
@@ -253,7 +254,7 @@ export class GoalService {
     return ApiResponse.success('Contribution added successfully');
   });
 
-  static getGoalProjection = catchAsync(async (userId: string, goalId: string, extraMonthly = 0) => {
+  static getGoalProjection = async (userId: string, goalId: string, extraMonthly = 0) => {
     const goal = await Goal.findOne({ _id: goalId, userId });
     if (!goal) {
       throw ApiError.notFound('Goal not found');
@@ -270,13 +271,13 @@ export class GoalService {
     return ApiResponse.success('Goal projection retrieved successfully', { projection });
   });
 
-  static getUpcomingDeadlines = catchAsync(async (userId: string, days = 30) => {
+  static getUpcomingDeadlines = async (userId: string, days = 30) => {
     const upcomingGoals = await Goal.getUpcomingDeadlines(userId, days);
 
     return ApiResponse.success('Upcoming deadlines retrieved successfully', { goals: upcomingGoals });
   });
 
-  static getSummary = catchAsync(async (userId: string) => {
+  static getSummary = async (userId: string) => {
     const summary = await Goal.getSummary(userId);
 
     return ApiResponse.success('Goal summary retrieved successfully', { summary: summary[0] || {} });
@@ -287,7 +288,7 @@ export class GoalService {
  * Budget Service
  */
 export class BudgetService {
-  static createBudget = catchAsync(async (userId: string, budgetData: any) => {
+  static createBudget = async (userId: string, budgetData: any) => {
     const { categoryId, monthlyLimit, month, year, rolloverEnabled = false, alertThreshold = 80 } = budgetData;
 
     // Check for existing budget
@@ -318,19 +319,19 @@ export class BudgetService {
     return ApiResponse.created('Budget created successfully', { budget: populatedBudget });
   });
 
-  static getBudgets = catchAsync(async (userId: string, month: number, year: number) => {
+  static getBudgets = async (userId: string, month: number, year: number) => {
     const budgets = await Budget.findByMonth(userId, month, year);
 
     return ApiResponse.success('Budgets retrieved successfully', { budgets });
   });
 
-  static getBudgetStatus = catchAsync(async (userId: string, month: number, year: number) => {
+  static getBudgetStatus = async (userId: string, month: number, year: number) => {
     const budgetStatus = await Budget.getBudgetStatus(userId, month, year);
 
     return ApiResponse.success('Budget status retrieved successfully', { budgetStatus });
   });
 
-  static updateBudget = catchAsync(async (userId: string, budgetId: string, updateData: any) => {
+  static updateBudget = async (userId: string, budgetId: string, updateData: any) => {
     const budget = await Budget.findOne({ _id: budgetId, userId });
     if (!budget) {
       throw ApiError.notFound('Budget not found');
@@ -342,7 +343,7 @@ export class BudgetService {
     return ApiResponse.success('Budget updated successfully', { budget });
   });
 
-  static deleteBudget = catchAsync(async (userId: string, budgetId: string) => {
+  static deleteBudget = async (userId: string, budgetId: string) => {
     const budget = await Budget.findOne({ _id: budgetId, userId });
     if (!budget) {
       throw ApiError.notFound('Budget not found');
@@ -353,13 +354,13 @@ export class BudgetService {
     return ApiResponse.success('Budget deleted successfully');
   });
 
-  static copyFromPreviousMonth = catchAsync(async (userId: string, month: number, year: number) => {
+  static copyFromPreviousMonth = async (userId: string, month: number, year: number) => {
     await Budget.copyFromPreviousMonth(userId, month, year);
 
     return ApiResponse.success('Budgets copied from previous month');
   });
 
-  static getSummary = catchAsync(async (userId: string, month: number, year: number) => {
+  static getSummary = async (userId: string, month: number, year: number) => {
     const summary = await Budget.getSummary(userId, month, year);
 
     return ApiResponse.success('Budget summary retrieved successfully', { summary: summary[0] || {} });
@@ -370,7 +371,7 @@ export class BudgetService {
  * Analytics Service
  */
 export class AnalyticsService {
-  static getDashboardSummary = catchAsync(async (userId: string, from?: Date, to?: Date) => {
+  static getDashboardSummary = async (userId: string, from?: Date, to?: Date) => {
     const now = new Date();
     const defaultFrom = from || new Date(now.getFullYear(), now.getMonth(), 1);
     const defaultTo = to || new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -397,25 +398,25 @@ export class AnalyticsService {
     });
   });
 
-  static getSpendingByCategory = catchAsync(async (userId: string, from: Date, to: Date) => {
+  static getSpendingByCategory = async (userId: string, from: Date, to: Date) => {
     const spendingByCategory = await Category.getSpendingSummary(userId, from, to);
 
     return ApiResponse.success('Spending by category retrieved successfully', { spendingByCategory });
   });
 
-  static getTopSpendingCategories = catchAsync(async (userId: string, from: Date, to: Date, limit = 10) => {
+  static getTopSpendingCategories = async (userId: string, from: Date, to: Date, limit = 10) => {
     const topCategories = await Category.getTopSpending(userId, from, to, limit);
 
     return ApiResponse.success('Top spending categories retrieved successfully', { topCategories: topCategories[0]?.categories || [] });
   });
 
-  static getMonthlyComparison = catchAsync(async (userId: string, months = 12) => {
+  static getMonthlyComparison = async (userId: string, months = 12) => {
     const monthlyTrends = await Transaction.getMonthlyTrends(userId, months);
 
     return ApiResponse.success('Monthly comparison retrieved successfully', { monthlyTrends });
   });
 
-  static getFinancialScore = catchAsync(async (userId: string) => {
+  static getFinancialScore = async (userId: string) => {
     // Calculate financial score based on various factors
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -453,7 +454,7 @@ export class AnalyticsService {
  * Sync Service
  */
 export class SyncService {
-  static pullSync = async (userId: string, syncData: any) => {
+  static pullSync = catchAsync(async (userId: string, syncData: any) => {
     const { deviceId, lastSyncAt, collections = [] } = syncData;
 
     // Get all collections for sync
@@ -498,7 +499,7 @@ export class SyncService {
     };
   };
 
-  static pushSync = async (userId: string, syncData: any) => {
+  static pushSync = catchAsync(async (userId: string, syncData: any) => {
     const { deviceId, changes } = syncData;
 
     // Process changes from client
@@ -515,7 +516,7 @@ export class SyncService {
     };
   };
 
-  static getSyncStatus = async (userId: string) => {
+  static getSyncStatus = catchAsync(async (userId: string) => {
     // Get last modified times for all collections
     const collections = ['transactions', 'accounts', 'categories', 'goals', 'budgets'];
     const status: any = {};
@@ -542,7 +543,7 @@ export class SyncService {
  * Notification Service
  */
 export class NotificationService {
-  static sendTestNotification = catchAsync(async (userId: string, notificationData: any) => {
+  static sendTestNotification = async (userId: string, notificationData: any) => {
     const { title, body } = notificationData;
 
     const user = await User.findById(userId);
@@ -556,7 +557,7 @@ export class NotificationService {
     return ApiResponse.success('Test notification sent successfully');
   });
 
-  static updateNotificationSettings = catchAsync(async (userId: string, settings: any) => {
+  static updateNotificationSettings = async (userId: string, settings: any) => {
     const user = await User.findById(userId);
     if (!user) {
       throw ApiError.notFound('User not found');
@@ -568,21 +569,21 @@ export class NotificationService {
     return ApiResponse.success('Notification settings updated successfully');
   });
 
-  static sendBudgetAlerts = catchAsync(async () => {
+  static sendBudgetAlerts = async () => {
     // This would be called by a scheduled job
     // Find all users who have budget alerts enabled and send notifications
 
     return ApiResponse.success('Budget alerts processed successfully');
   });
 
-  static sendGoalReminders = catchAsync(async () => {
+  static sendGoalReminders = async () => {
     // This would be called by a scheduled job
     // Find all users with upcoming goal deadlines and send notifications
 
     return ApiResponse.success('Goal reminders processed successfully');
   });
 
-  static sendBillReminders = catchAsync(async () => {
+  static sendBillReminders = async () => {
     // This would be called by a scheduled job
     // Find all users with upcoming bill due dates and send notifications
 
@@ -594,7 +595,7 @@ export class NotificationService {
  * Import/Export Service
  */
 export class ImportExportService {
-  static importTransactions = catchAsync(async (userId: string, importData: any) => {
+  static importTransactions = async (userId: string, importData: any) => {
     const { file, dateCol, amountCol, titleCol, categoryCol, typeCol, notesCol, dateFormat } = importData;
 
     // Process CSV/JSON file and import transactions
@@ -606,7 +607,7 @@ export class ImportExportService {
     });
   });
 
-  static exportTransactions = catchAsync(async (userId: string, exportOptions: any) => {
+  static exportTransactions = async (userId: string, exportOptions: any) => {
     const { format = 'json', from, to, type, categoryId, accountId } = exportOptions;
 
     // Export transactions in requested format
@@ -618,7 +619,7 @@ export class ImportExportService {
     });
   });
 
-  static exportData = catchAsync(async (userId: string, exportOptions: any) => {
+  static exportData = async (userId: string, exportOptions: any) => {
     const { collections = ['transactions', 'accounts', 'categories'], format = 'json' } = exportOptions;
 
     // Export all user data in requested format

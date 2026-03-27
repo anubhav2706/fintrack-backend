@@ -15,7 +15,7 @@ export class TransactionService {
   /**
    * Create a new transaction
    */
-  static createTransaction = catchAsync(async (userId: string, transactionData: any) => {
+  static createTransaction = async (userId: string, transactionData: any) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -144,7 +144,7 @@ export class TransactionService {
   /**
    * Get transactions with pagination and filtering
    */
-  static getTransactions = catchAsync(async (userId: string, options: any = {}) => {
+  static getTransactions = async (userId: string, options: any = {}) => {
     const {
       page = 1,
       limit = 20,
@@ -227,7 +227,7 @@ export class TransactionService {
   /**
    * Get transaction by ID
    */
-  static getTransactionById = catchAsync(async (userId: string, transactionId: string) => {
+  static getTransactionById = async (userId: string, transactionId: string) => {
     const transaction = await Transaction.findOne({
       _id: transactionId,
       userId,
@@ -251,7 +251,7 @@ export class TransactionService {
   /**
    * Update transaction
    */
-  static updateTransaction = catchAsync(async (userId: string, transactionId: string, updateData: any) => {
+  static updateTransaction = async (userId: string, transactionId: string, updateData: any) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -427,7 +427,7 @@ export class TransactionService {
   /**
    * Delete transaction (soft delete)
    */
-  static deleteTransaction = catchAsync(async (userId: string, transactionId: string) => {
+  static deleteTransaction = async (userId: string, transactionId: string) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -498,7 +498,7 @@ export class TransactionService {
   /**
    * Bulk delete transactions
    */
-  static bulkDeleteTransactions = catchAsync(async (userId: string, transactionIds: string[]) => {
+  static bulkDeleteTransactions = async (userId: string, transactionIds: string[]) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -570,7 +570,7 @@ export class TransactionService {
   /**
    * Get transaction summary
    */
-  static getTransactionSummary = catchAsync(async (userId: string, from: Date, to: Date, accountId?: string) => {
+  static getTransactionSummary = async (userId: string, from: Date, to: Date, accountId?: string) => {
     const summary = await Transaction.getSummary(userId, from, to, accountId);
 
     return ApiResponse.success('Transaction summary retrieved successfully', {
@@ -586,7 +586,7 @@ export class TransactionService {
   /**
    * Search merchants
    */
-  static searchMerchants = catchAsync(async (userId: string, query: string, limit: number = 10) => {
+  static searchMerchants = async (userId: string, query: string, limit: number = 10) => {
     const merchants = await Transaction.searchMerchants(userId, query, limit);
 
     return ApiResponse.success('Merchants retrieved successfully', {
@@ -597,7 +597,7 @@ export class TransactionService {
   /**
    * Get monthly trends
    */
-  static getMonthlyTrends = catchAsync(async (userId: string, months: number = 12) => {
+  static getMonthlyTrends = async (userId: string, months: number = 12) => {
     const trends = await Transaction.getMonthlyTrends(userId, months);
 
     return ApiResponse.success('Monthly trends retrieved successfully', {
@@ -608,7 +608,7 @@ export class TransactionService {
   /**
    * Get tag statistics
    */
-  static getTagStats = catchAsync(async (userId: string, limit: number = 20) => {
+  static getTagStats = async (userId: string, limit: number = 20) => {
     const stats = await Transaction.getTagStats(userId, limit);
 
     return ApiResponse.success('Tag statistics retrieved successfully', {
